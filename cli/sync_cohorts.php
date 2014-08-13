@@ -101,7 +101,6 @@ if ($CFG->debug_ldap_groupes){
     pp_print_object('plugin group names cache ',$plugin->groups_dn_cache);
 }
 
-
 foreach ($ldap_groups as $group=>$groupname) {
     print "processing LDAP group " . $groupname .PHP_EOL;
     $params = array (
@@ -123,6 +122,16 @@ foreach ($ldap_groups as $group=>$groupname) {
         if (count($ldap_members)==0) {
             print "not autocreating empty cohort " . $groupname .PHP_EOL;
             continue;
+        }
+        
+        // split out the ignored regexps on the hash symbol
+        if (!empty(empty($plugin->config->ignore_regexp)))
+        {
+            if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
+            {
+                print "not autocreating cohort that matches ignore regexp " . $groupname .PHP_EOL;
+                continue;
+            }
         }
     
         $cohort = new StdClass();
@@ -163,6 +172,23 @@ foreach ($ldap_groups as $group=>$groupname) {
     }
     //break;
 
+}
+
+if (!empty($plugin->config->delete_empty_cohort)) 
+{
+    //Look for all cohorts at the site level (since that's where the LDAP Cohort sync operates)
+    $cohorts = cohort_get_cohorts(1, 0, PHP_INT_MAX, '');
+
+    print "Found cohorts ".$cohorts['allcohorts'].PHP_EOL;
+
+    foreach($cohorts['cohorts'] as $cohort)
+    {
+        if($DB->count_records('cohort_members', array('cohortid'=>$cohort->id)) == 0)
+        {
+            print "Deleting empty cohort " .$cohort->description .PHP_EOL;
+            cohort_delete_cohort($cohort);
+        }
+    }
 }
 
 $difftime = microtime_diff($starttime, microtime());
