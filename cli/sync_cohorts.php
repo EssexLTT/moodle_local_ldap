@@ -125,7 +125,7 @@ foreach ($ldap_groups as $group=>$groupname) {
         }
         
         // split out the ignored regexps on the hash symbol
-        if (!empty(empty($plugin->config->ignore_regexp)))
+        if (!empty($plugin->config->ignore_regexp))
         {
             if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
             {
