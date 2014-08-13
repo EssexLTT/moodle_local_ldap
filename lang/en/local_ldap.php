@@ -6,6 +6,9 @@ $string['pluginname'] = 'LDAP synching scripts';
 $string['synccohortgroup']='Synch Moodle\'s cohorts with LDAP groups';
 $string['synccohortgroup_info']='';
 
+$string['cohort_syncing_ldap_ignore_group'] = 'Regexp of groups to ignore';
+$string['cohort_syncing_depete_empty'] = 'Delete empty cohorts';
+
 $string['group_attribute']='Group attribute';
 $string['group_attribute_desc']='Naming attribute of your LDAP groups, usually cn ';
 
