@@ -101,7 +101,13 @@ if ($CFG->debug_ldap_groupes){
     pp_print_object('plugin group names cache ',$plugin->groups_dn_cache);
 }
 
-foreach ($ldap_groups as $group=>$groupname) {
+foreach ($ldap_groups as $group) 
+{
+    //Define local fields
+    $groupname = $group[$plugin->config->group_attribute][0];
+    $groupdesc = $group[$plugin->config->group_description][0];
+    
+    
     print "processing LDAP group " . $groupname .PHP_EOL;
     $params = array (
         'idnumber' => $groupname
@@ -139,7 +145,7 @@ foreach ($ldap_groups as $group=>$groupname) {
         $cohort->name = $cohort->idnumber = $groupname;
         $cohort->contextid = context_system::instance()->id;
         //$cohort->component='sync_ldap';
-        $cohort->description=get_string('cohort_synchronized_with_group','local_ldap',$groupname);
+        $cohort->description=$groupdesc;
         //print_r($cohort);
         $cohortid = cohort_add_cohort($cohort);
         print "creating cohort " . $group .PHP_EOL;
