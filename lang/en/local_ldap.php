@@ -7,7 +7,7 @@ $string['synccohortgroup']='Synch Moodle\'s cohorts with LDAP groups';
 $string['synccohortgroup_info']='';
 
 $string['ignore_regexp'] = 'Regexp of groups to ignore';
-$string['ignore_regexp_desc'] = 'PHP regex of groups to ignore. Separate multiple regexps with hash symbol (#).';
+$string['ignore_regexp_desc'] = 'PHP regex of groups to ignore.';
 $string['delete_empty_cohort'] = 'Delete empty cohorts';
 $string['delete_empty_cohort_desc'] = 'Should the plugin remove any empty cohorts that it encounters';
 
