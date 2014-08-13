@@ -9,7 +9,7 @@ $string['synccohortgroup_info']='';
 $string['ignore_regexp'] = 'Regexp of groups to ignore';
 $string['ignore_regexp_desc'] = 'PHP regex of groups to ignore.';
 $string['delete_empty_cohort'] = 'Delete empty cohorts';
-$string['delete_empty_cohort_desc'] = 'Should the plugin remove any empty cohorts that it encounters';
+$string['delete_empty_cohort_desc'] = 'Should the plugin remove any empty cohorts that it encounters in the site context?';
 
 
 $string['group_attribute']='Group attribute';
