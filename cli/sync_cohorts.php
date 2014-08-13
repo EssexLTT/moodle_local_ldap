@@ -185,7 +185,7 @@ if (!empty($plugin->config->delete_empty_cohort))
     {
         if($DB->count_records('cohort_members', array('cohortid'=>$cohort->id)) == 0)
         {
-            print "Deleting empty cohort " .$cohort->description .PHP_EOL;
+            print "Deleting empty cohort " .$cohort->name .PHP_EOL;
             cohort_delete_cohort($cohort);
         }
     }
