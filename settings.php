@@ -49,6 +49,12 @@ if ($hassiteconfig) {
     $description = get_string($name.'_desc','local_ldap');  
     $setting = new admin_setting_configtext('local_ldap/'.$name, $title, $description, 'cn');
     $settings ->add($setting);   
+    
+    $name = 'group_description';
+    $title = get_string($name,'local_ldap');
+    $description = get_string($name.'_desc','local_ldap');  
+    $setting = new admin_setting_configtext('local_ldap/'.$name, $title, $description, 'description');
+    $settings ->add($setting);       
                     
     $name = 'group_class';
     $title = get_string($name,'local_ldap');
