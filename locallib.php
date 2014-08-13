@@ -198,14 +198,14 @@ class auth_plugin_cohort extends auth_plugin_ldap {
             }
 
             //add found groups to list
-            for ($i = 0; $i < count($groups) - 1; $i++) {
-                $group_cn=$groups[$i][$this->config->group_attribute][0];
-                array_push($fresult, ($groups[$i][$this->config->group_attribute][0]));
+            for ($i = 0; $i < count($groups) - 1; $i++) 
+            {
+                array_push($fresult, ($groups[$i]));
 
                 // keep the dn/cn in cache for processing
                 if ($this->config->process_nested_groups) {
                     $group_dn=$groups[$i]['dn'];
-                    $this->groups_dn_cache[$group_dn]=$group_cn;
+                    $this->groups_dn_cache[$group_dn]=$groups[$i];
                 }
             }
         }
