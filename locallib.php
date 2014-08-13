@@ -96,6 +96,10 @@ class auth_plugin_cohort extends auth_plugin_ldap {
          $this->merge_config($extra, 'cohort_synching_ldap_groups_autocreate_cohorts',false);
          $this->merge_config($extra, 'cohort_synching_ldap_attribute_autocreate_cohorts',false);
          
+         $this->merge_config($extra, 'ignore_regexp', false);
+         $this->merge_config($extra, 'delete_empty_cohort', '');
+         
+         
                  
          /** Moodle DO convert to lowercase all LDAP attributes in setting screens
          * this cause an issue when searching LDAP group members when user's naming attribute
