@@ -106,7 +106,18 @@ foreach ($ldap_groups as $group=>$groupname) {
     $params = array (
         'idnumber' => $groupname
     );
-   // not that we search for cohort IDNUMBER and not name for a match 
+    
+    // check the ignored regexp
+    if (!empty($plugin->config->ignore_regexp))
+    {
+        if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
+        {
+            print "not autocreating cohort that matches ignore regexp " . $groupname .PHP_EOL;
+            continue;
+        }
+    }    
+    
+    // note that we search for cohort IDNUMBER and not name for a match 
     // thus it we do not autocreate cohorts, admin MUST create cohorts beforehand
     // and set their IDNUMBER to the exact value of the corresponding attribute in LDAP  
     if (!$cohort = $DB->get_record('cohort', $params, '*')) {
@@ -122,16 +133,6 @@ foreach ($ldap_groups as $group=>$groupname) {
         if (count($ldap_members)==0) {
             print "not autocreating empty cohort " . $groupname .PHP_EOL;
             continue;
-        }
-        
-        // split out the ignored regexps on the hash symbol
-        if (!empty($plugin->config->ignore_regexp))
-        {
-            if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
-            {
-                print "not autocreating cohort that matches ignore regexp " . $groupname .PHP_EOL;
-                continue;
-            }
         }
     
         $cohort = new StdClass();
