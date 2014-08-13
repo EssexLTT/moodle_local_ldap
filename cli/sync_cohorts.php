@@ -148,7 +148,7 @@ foreach ($ldap_groups as $group)
         $cohort->description=$groupdesc;
         //print_r($cohort);
         $cohortid = cohort_add_cohort($cohort);
-        print "creating cohort " . $group .PHP_EOL;
+        print "creating cohort " . $groupname .PHP_EOL;
 
     } else {
         $cohortid = $cohort->id;
