@@ -93,13 +93,14 @@ class auth_plugin_cohort extends auth_plugin_ldap {
         $this->merge_config($extra, 'cohort_synching_ldap_attribute_attribute','eduPersonAffiliation');
         $this->merge_config($extra, 'cohort_synching_ldap_attribute_idnumbers','');
         
-         $this->merge_config($extra, 'cohort_synching_ldap_groups_autocreate_cohorts',false);
-         $this->merge_config($extra, 'cohort_synching_ldap_attribute_autocreate_cohorts',false);
+        $this->merge_config($extra, 'cohort_synching_ldap_groups_autocreate_cohorts',false);
+        $this->merge_config($extra, 'cohort_synching_ldap_attribute_autocreate_cohorts',false);
          
-         $this->merge_config($extra, 'ignore_regexp', false);
-         $this->merge_config($extra, 'delete_empty_cohort', '');
-         
-         
+        $this->merge_config($extra, 'ignore_regexp', false);
+        $this->merge_config($extra, 'delete_empty_cohort', '');
+        
+        $this->merge_config($extra, 'group_description', 'description');
+        
                  
          /** Moodle DO convert to lowercase all LDAP attributes in setting screens
          * this cause an issue when searching LDAP group members when user's naming attribute
@@ -186,10 +187,10 @@ class auth_plugin_cohort extends auth_plugin_ldap {
 
             if ($this->config->search_sub) {
                 //use ldap_search to find first group from subtree
-                $ldap_result = ldap_search($ldapconnection, $context, $filter, array ($this->config->group_attribute));
+                $ldap_result = ldap_search($ldapconnection, $context, $filter, array ($this->config->group_attribute, $this->config->group_description));
             } else {
                 //search only in this context
-                $ldap_result = ldap_list($ldapconnection, $context, $filter, array ($this->config->group_attribute));
+                $ldap_result = ldap_list($ldapconnection, $context, $filter, array ($this->config->group_attribute, $this->config->group_description));
             }
             $groups = ldap_get_entries($ldapconnection, $ldap_result);
             if ($CFG->debug_ldap_groupes){
