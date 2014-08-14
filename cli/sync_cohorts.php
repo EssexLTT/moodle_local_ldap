@@ -107,78 +107,85 @@ foreach ($ldap_groups as $group)
     $groupname = $group[$plugin->config->group_attribute][0];
     $groupdesc = $group[$plugin->config->group_description][0];
     
-    
-    print "processing LDAP group " . $groupname .PHP_EOL;
-    $params = array (
-        'idnumber' => $groupname
-    );
-    
-    // check the ignored regexp
-    if (!empty($plugin->config->ignore_regexp))
+    try
     {
-        if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
+    
+        print "processing LDAP group " . $groupname .PHP_EOL;
+        $params = array (
+            'idnumber' => $groupname
+        );
+        
+        // check the ignored regexp
+        if (!empty($plugin->config->ignore_regexp))
         {
-            print "not autocreating cohort that matches ignore regexp " . $groupname .PHP_EOL;
-            continue;
-        }
-    }    
-    
-    // note that we search for cohort IDNUMBER and not name for a match 
-    // thus it we do not autocreate cohorts, admin MUST create cohorts beforehand
-    // and set their IDNUMBER to the exact value of the corresponding attribute in LDAP  
-    if (!$cohort = $DB->get_record('cohort', $params, '*')) {
+            if (preg_match($plugin->config->ignore_regexp, $groupname) > 0)
+            {
+                print "not autocreating cohort that matches ignore regexp " . $groupname .PHP_EOL;
+                continue;
+            }
+        }    
         
-        if (empty($plugin->config->cohort_synching_ldap_groups_autocreate_cohorts)) {
-            print ("ignoring $groupname that does not exist in Moodle (autocreation is off)".PHP_EOL);
-            continue;
+        // note that we search for cohort IDNUMBER and not name for a match 
+        // thus it we do not autocreate cohorts, admin MUST create cohorts beforehand
+        // and set their IDNUMBER to the exact value of the corresponding attribute in LDAP  
+        if (!$cohort = $DB->get_record('cohort', $params, '*')) {
+            
+            if (empty($plugin->config->cohort_synching_ldap_groups_autocreate_cohorts)) {
+                print ("ignoring $groupname that does not exist in Moodle (autocreation is off)".PHP_EOL);
+                continue;
+            }
+            
+            $ldap_members = $plugin->ldap_get_group_members($groupname);
+            
+            // do not create yet the cohort if no known Moodle users are concerned
+            if (count($ldap_members)==0) {
+                print "not autocreating empty cohort " . $groupname .PHP_EOL;
+                continue;
+            }
+        
+            $cohort = new StdClass();
+            $cohort->name = $cohort->idnumber = $groupname;
+            $cohort->contextid = context_system::instance()->id;
+            //$cohort->component='sync_ldap';
+            $cohort->description=$groupdesc;
+            //print_r($cohort);
+            $cohortid = cohort_add_cohort($cohort);
+            print "creating cohort " . $groupname .PHP_EOL;
+        
+        } else {
+            $cohortid = $cohort->id;
+            $ldap_members = $plugin->ldap_get_group_members($groupname);
         }
         
-        $ldap_members = $plugin->ldap_get_group_members($groupname);
         
-        // do not create yet the cohort if no known Moodle users are concerned
-        if (count($ldap_members)==0) {
-            print "not autocreating empty cohort " . $groupname .PHP_EOL;
-            continue;
+        if ($CFG->debug_ldap_groupes){
+            pp_print_object("members of LDAP group $groupname known to Moodle", $ldap_members);
         }
-    
-        $cohort = new StdClass();
-        $cohort->name = $cohort->idnumber = $groupname;
-        $cohort->contextid = context_system::instance()->id;
-        //$cohort->component='sync_ldap';
-        $cohort->description=$groupdesc;
-        //print_r($cohort);
-        $cohortid = cohort_add_cohort($cohort);
-        print "creating cohort " . $groupname .PHP_EOL;
-
-    } else {
-        $cohortid = $cohort->id;
-        $ldap_members = $plugin->ldap_get_group_members($groupname);
-    }
- 
-
-    if ($CFG->debug_ldap_groupes){
-        pp_print_object("members of LDAP group $groupname known to Moodle", $ldap_members);
-    }
-
-    $cohort_members = $plugin->get_cohort_members($cohortid);
-    if ($CFG->debug_ldap_groupes){
-        pp_print_object("current members of cohort $groupname", $cohort_members);
-    }
-    foreach ($cohort_members as $userid => $user) {
-        if (!isset ($ldap_members[$userid])) {
-            cohort_remove_member($cohortid, $userid);
-            print "removing " .$user->username ." from cohort " .$groupname . PHP_EOL;
+        
+        $cohort_members = $plugin->get_cohort_members($cohortid);
+        if ($CFG->debug_ldap_groupes){
+            pp_print_object("current members of cohort $groupname", $cohort_members);
         }
-    }
-
-    foreach ($ldap_members as $userid => $username) {
-        if (!$plugin->cohort_is_member($cohortid, $userid)) {
-            cohort_add_member($cohortid, $userid);
-            print "adding " . $username . " to cohort " . $groupname .PHP_EOL;
+        foreach ($cohort_members as $userid => $user) {
+            if (!isset ($ldap_members[$userid])) {
+                cohort_remove_member($cohortid, $userid);
+                print "removing " .$user->username ." from cohort " .$groupname . PHP_EOL;
+            }
         }
+        
+        foreach ($ldap_members as $userid => $username) {
+            if (!$plugin->cohort_is_member($cohortid, $userid)) {
+                cohort_add_member($cohortid, $userid);
+                print "adding " . $username . " to cohort " . $groupname .PHP_EOL;
+            }
+        }
+        //break;
+    } 
+    catch (exception $e)
+    {
+        print "exception encountered whilst adding ".$groupname .PHP_EOL;
     }
-    //break;
-
+    }
 }
 
 if (!empty($plugin->config->delete_empty_cohort)) 
