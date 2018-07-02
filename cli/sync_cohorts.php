@@ -185,7 +185,6 @@ foreach ($ldap_groups as $group)
     {
         print "exception encountered whilst adding ".$groupname .PHP_EOL;
     }
-    }
 }
 
 if (!empty($plugin->config->delete_empty_cohort)) 

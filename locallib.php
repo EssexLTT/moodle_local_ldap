@@ -59,7 +59,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
      * Constructor.
      */
 
-    function auth_plugin_cohort() {
+    function __construct() {
         global $CFG;
         // revision March 2013 needed to fetch the proper LDAP parameters
         // host, context ... from table config_plugins see comments in https://tracker.moodle.org/browse/MDL-25011
@@ -224,8 +224,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
         $ret = array ();
         $ldapconnection = $this->ldap_connect();
 
-        $textlib = textlib_get_instance();
-        $group = $textlib->convert($group, 'utf-8', $this->config->ldapencoding);
+        $group = core_text::convert($group, 'utf-8', $this->config->ldapencoding);
         //this line break the script with Moodle 2.1 2.2  under windows
         //see http://tracker.moodle.org/browse/MDL-30859
         //$group = textlib::convert($group, 'utf-8', $this->config->ldapencoding);
@@ -287,12 +286,12 @@ class auth_plugin_cohort extends auth_plugin_ldap {
                             }
                             //caution in Moodle LDAP attributes names are converted to lowercase
                             // see process_config in auth/ldap/auth.php
-                            $found=textlib::strtolower($membre_tmp2[0]) == textlib::strtolower($this->config->user_attribute);
+                            $found=core_text::strtolower($membre_tmp2[0]) == core_text::strtolower($this->config->user_attribute);
                             //no need to search LDAP in that case
                             if ($found && empty($this->config->no_speedup_ldap)) {//celui de la config
                                 //in Moodle usernames are always converted to lowercase
                                 // see auto creating or synching users in auth/ldap/auth.php
-                                $ret[] =textlib::strtolower( $membre_tmp2[1]);
+                                $ret[] =core_text::strtolower( $membre_tmp2[1]);
                             }else {
                                 // fetch Moodle username from LDAP or process nested group
                                 if ($CFG->debug_ldap_groupes){
@@ -325,7 +324,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
                                 }// else nothing to add
                             }
                         } else {
-                            $ret[] = textlib::strtolower($membre);
+                            $ret[] = core_text::strtolower($membre);
                         }
                     }
                 }
@@ -355,8 +354,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
             return $ret;
         }
 
-        $textlib = textlib_get_instance();
-        $group = $textlib->convert($group, 'utf-8', $this->config->ldapencoding);
+        $group = core_text::convert($group, 'utf-8', $this->config->ldapencoding);
         //this line break the script with Moodle 2.1 2.2  under windows
         //see http://tracker.moodle.org/browse/MDL-30859
         //$group = textlib::convert($group, 'utf-8', $this->config->ldapencoding);
@@ -388,7 +386,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
 
             while (!$fini) {
                 //recherche paginée par paquet de 1000
-                $attribut = $this->config->memberattribute . ";range=" . $start . '-' . $end;
+                $attribut = $this->config->memberattribute;
                 $resultg = ldap_search($ldapconnection, $context, $queryg, array (
                 $attribut
                 ));
@@ -401,7 +399,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
 
                     // a la derniere passe, AD renvoie member;Range=numero-* !!!
                     if (empty ($groupe[0][$attribut])) {
-                        $attribut = $this->config->memberattribute . ";range=" . $start . '-*';
+                        $attribut = $this->config->memberattribute;
                         $fini = true;
                     }
 
@@ -489,7 +487,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
         }
         //in Moodle usernames are always converted to lowercase
         // see auto creating or synching users in auth/ldap/auth.php
-        return textlib::strtolower($matchings[0]);
+        return core_text::strtolower($matchings[0]);
     }
 
     /**
@@ -520,7 +518,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
             return false;
         }
 
-        $matching = textlib::convert($user[0][$this->config->user_attribute][0], $this->config->ldapencoding, 'utf-8');
+        $matching = core_text::convert($user[0][$this->config->user_attribute][0], $this->config->ldapencoding, 'utf-8');
 
         if ($CFG->debug_ldap_groupes) {
             pp_print_object('found ',$matching);
@@ -528,7 +526,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
 
         //in Moodle usernames are always converted to lowercase
         // see auto creating or synching users in auth/ldap/auth.php
-        return textlib::strtolower($matching);
+        return core_text::strtolower($matching);
     }
 
 
@@ -635,7 +633,7 @@ class auth_plugin_cohort extends auth_plugin_ldap {
            for ($i = 0; $i < count($users); $i++) {
                $count=$users[$i][$this->config->cohort_synching_ldap_attribute_attribute]['count'];
                for ($j=0; $j <$count; $j++) {
-                   $value=  textlib::convert($users[$i][$this->config->cohort_synching_ldap_attribute_attribute][$j],
+                   $value=  core_text::convert($users[$i][$this->config->cohort_synching_ldap_attribute_attribute][$j],
                                 $this->config->ldapencoding, 'utf-8');
                    if (! in_array ($value, $matchings)) {
                        array_push($matchings,$value);
